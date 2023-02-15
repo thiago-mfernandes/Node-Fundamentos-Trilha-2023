@@ -1,0 +1,21 @@
+{
+  "name": "fundamentos",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thiago-mfernandes/node-fundamentos.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thiago-mfernandes/node-fundamentos/issues"
+  },
+  "homepage": "https://github.com/thiago-mfernandes/node-fundamentos#readme"
+}
