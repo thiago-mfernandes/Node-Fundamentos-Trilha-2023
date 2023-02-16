@@ -6,35 +6,30 @@
  */
  
 import http from 'node:http';
+import { json } from './middlewares/json.js';
+import { routes } from './routes.js';
 
-const users = [];
+
 
 /**
  * 1. essa fn recebe dois parametros: request e response
  * 2. REQUEST: sao as informacoes de quem esta chamando nosso servidor e os dados que vem junto
  * 3. RESPONSE: devolve uma resposta pra quem chamou o servidor
  */
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const { method, url } = req;
+  
 
-   if( method === 'GET' && url === '/users') {
-    
-    return res
-    //Content-type: qual tipo de conteudo
-    //application/json: tipo do conteudo
-    .setHeader('Content-type', 'application/json')
-    //json stringfy transforma meu array em um json(string)
-    .end(JSON.stringify(users))
-   }
+  await json(req, res)
 
-   if( method === 'POST' && url === '/users') {
-    users.push({
-      id: 1,
-      name: 'John Doe',
-      name: 'johndoe@example.com',
-    })
-    return res.writeHead(201).end()
-   }
+  //quando houver uma requisicao, vou procurar no arquivo de rotas se o metodo e url existem
+  const route = routes.find(route => {
+    return route.method === method && route.path === url
+  })
+  //se existir, chamo a funcao da rota especifica
+  if(route) {
+    return route.handler(req, res)
+  }
   
   return res.writeHead(404).end()
 })
