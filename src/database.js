@@ -21,11 +21,23 @@ export class Database {
     fs.writeFile(databasePath, JSON.stringify(this.#database))
   }
 
-  select(table) {
+  select(table, search) {
     //retorna todos os dados da tabela
 
     //esta tabela[procura o nome da tabela que vou inserir o dado] se nao tiver retorna um arr vazio
-    const data = this.#database[table] ?? []
+    let data = this.#database[table] ?? []
+
+    if(search) {
+      data = data.filter(row => {
+        //metodo entries converte o objeto em array, da seguinte forma:
+        //{ name: "Thiago", email: "thiago"}
+        //[ ['name', 'Thiago'], ['email': 'thiago'] ]
+
+        return Object.entries(search).some(([key, value]) => {
+          return row[key].toLowerCase().includes(value.toLowerCase())
+        })
+      })
+    }
 
     return data;
   }
@@ -45,5 +57,23 @@ export class Database {
     this.#persist();
 
     return data;
+  }
+
+  update(table, id, data) {
+    const rowIndex = this.#database[table].findIndex(row => row.id === id)
+
+    if(rowIndex > -1) {
+      this.#database[table][rowIndex] = { id, ...data};
+      this.#persist()
+    }
+  }
+
+  delete(table, id) {
+    const rowIndex = this.#database[table].findIndex(row => row.id === id)
+
+    if(rowIndex > -1) {
+      this.#database[table].splice(rowIndex, 1)
+      this.#persist()
+    }
   }
 }

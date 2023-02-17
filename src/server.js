@@ -8,6 +8,7 @@
 import http from 'node:http';
 import { json } from './middlewares/json.js';
 import { routes } from './routes.js';
+import { extractQueryParams } from './utils/extract-quey-params.js';
 
 
 
@@ -24,10 +25,17 @@ const server = http.createServer(async (req, res) => {
 
   //quando houver uma requisicao, vou procurar no arquivo de rotas se o metodo e url existem
   const route = routes.find(route => {
-    return route.method === method && route.path === url
+    return route.method === method && route.path.test(url)
   })
   //se existir, chamo a funcao da rota especifica
   if(route) {
+    //aqui eu procuro quais dados vieram na minha rota
+    const routeParams = req.url.match(route.path);
+    const { query, ...params } = routeParams.groups
+
+    req.params = params
+    req.query = query ? extractQueryParams(query) : {}
+
     return route.handler(req, res)
   }
   
@@ -77,5 +85,16 @@ server.listen(3333); //localhost:3333
  * HTTP STatus Code
  * 
  * A minha req e minha res sao streams onde eu posso enviar dados aos poucos
+ * 
+ * 
+ * FORMAS DE ENVIAR INFORMACOES PARA A API:
+ * 
+ *                                                key(userId)=value(1)&key(userId)=value(1)
+ * query parameters : http://localhost:3333/users?userId=1
+ * 
+ * route parameters : indentificacao de recurso
+ *                    http://localhost:3333/users/1
+ * 
+ * request body : envio de informacoes por https
  */
 
